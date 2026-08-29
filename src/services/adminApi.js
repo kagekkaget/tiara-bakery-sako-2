@@ -55,10 +55,15 @@ async function apiCall(action, method = 'GET', body = null, params = {}) {
     }
 
     const session = getSession();
+    if (!session) {
+      return { success: false, message: 'Session expired. Silakan login kembali.' };
+    }
     const payload = {
       ...body,
-      sessionToken: session?.sessionToken
+      sessionToken: session.sessionToken
     };
+
+    console.log('POST payload:', { action, payload });
 
     const response = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',

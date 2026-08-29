@@ -41,7 +41,9 @@ export default function SettingsPage() {
     setMessage({ type: '', text: '' });
 
     try {
+      console.log('Saving:', key, settings[key]);
       const result = await adminApi.updateSetting(key, settings[key]);
+      console.log('Save result:', result);
       if (result.success) {
         setMessage({ type: 'success', text: `${labelForKey(key)} berhasil disimpan` });
         setTimeout(() => setMessage({ type: '', text: '' }), 3000);
@@ -49,7 +51,8 @@ export default function SettingsPage() {
         setMessage({ type: 'error', text: result.message || 'Gagal menyimpan' });
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Gagal terhubung ke server' });
+      console.error('Save error:', err);
+      setMessage({ type: 'error', text: 'Gagal terhubung: ' + (err.message || 'Unknown error') });
     } finally {
       setSaving(false);
     }

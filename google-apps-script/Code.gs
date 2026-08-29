@@ -234,7 +234,7 @@ function verifySession(token) {
   if (!token) return false;
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getheetByName('Sessions');
+  const sheet = ss.getSheetByName('Sessions');
   if (!sheet) return false;
 
   const data = sheet.getDataRange().getValues();
