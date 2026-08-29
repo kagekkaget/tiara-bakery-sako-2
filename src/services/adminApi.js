@@ -40,23 +40,43 @@ async function apiCall(action, method = 'GET', body = null, params = {}) {
 
   const queryParams = new URLSearchParams({ action, ...params });
 
-  if (method === 'GET') {
-    const response = await fetch(`${APPS_SCRIPT_URL}?${queryParams}`);
-    return response.json();
+  try {
+    if (method === 'GET') {
+      const response = await fetch(`${APPS_SCRIPT_URL}?${queryParams}`, {
+        redirect: 'follow'
+      });
+      const text = await response.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        console.error('Response not JSON:', text.substring(0, 500));
+        return { success: false, message: 'Response tidak valid dari server' };
+      }
+    }
+
+    const session = getSession();
+    const payload = {
+      ...body,
+      sessionToken: session?.sessionToken
+    };
+
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      redirect: 'follow'
+    });
+    const text = await response.text();
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      console.error('Response not JSON:', text.substring(0, 500));
+      return { success: false, message: 'Response tidak valid dari server' };
+    }
+  } catch (error) {
+    console.error('API Call Error:', error);
+    throw error;
   }
-
-  const session = getSession();
-  const payload = {
-    ...body,
-    sessionToken: session?.sessionToken
-  };
-
-  const response = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  return response.json();
 }
 
 export async function login(username, password) {

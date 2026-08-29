@@ -34,6 +34,8 @@ function doGet(e) {
 
   try {
     switch (action) {
+      case 'test':
+        return jsonResponse({ success: true, message: 'Koneksi berhasil!', timestamp: new Date().toISOString() });
       case 'login':
         return jsonResponse(login(e.parameter));
       case 'logout':
@@ -769,5 +771,11 @@ function verifyPassword(password, storedHash) {
 function jsonResponse(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleOptions(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({ success: true }))
     .setMimeType(ContentService.MimeType.JSON);
 }

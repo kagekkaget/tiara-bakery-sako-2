@@ -27,7 +27,8 @@ export default function LoginPage() {
         setError(result.message || 'Login gagal');
       }
     } catch (err) {
-      setError('Terjadi kesalahan. Pastikan VITE_APPS_SCRIPT_URL sudah diatur.');
+      console.error('Login error:', err);
+      setError('Terjadi kesalahan: ' + (err.message || 'Pastikan VITE_APPS_SCRIPT_URL sudah diatur dengan benar'));
     } finally {
       setLoading(false);
     }
