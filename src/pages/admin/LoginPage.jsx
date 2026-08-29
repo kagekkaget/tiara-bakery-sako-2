@@ -14,6 +14,18 @@ export default function LoginPage() {
 
   const from = location.state?.from?.pathname || '/admin';
 
+  if (!import.meta.env.VITE_APPS_SCRIPT_URL) {
+    return (
+      <div className="login-page">
+        <div className="login-container">
+          <div className="error-message">
+            <strong>Error:</strong> VITE_APPS_SCRIPT_URL belum diatur di file .env
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');

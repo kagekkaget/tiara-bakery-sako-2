@@ -64,25 +64,37 @@ function doPost(e) {
   let data = {};
 
   try {
-    if (e.postData && e.postData.contents) {
+    var postData = e.postData && e.postData.contents ? e.postData.contents : '';
+    var contentType = e.postData && e.postData.type ? e.postData.type : '';
+
+    if (contentType.indexOf('application/json') !== -1) {
       try {
-        data = JSON.parse(e.postData.contents);
+        data = JSON.parse(postData);
       } catch (jsonErr) {
-        if (e.parameters) {
-          data = {};
-          Object.keys(e.parameters).forEach(function(key) {
-            data[key] = e.parameters[key][0];
-          });
-        }
+        data = {};
       }
-    } else if (e.parameters) {
-      data = {};
-      Object.keys(e.parameters).forEach(function(key) {
-        data[key] = e.parameters[key][0];
-      });
+    } else {
+      if (postData && postData.indexOf('{') === 0) {
+        try {
+          data = JSON.parse(postData);
+        } catch (jsonErr) {
+          data = parseFormData(postData);
+        }
+      } else if (postData) {
+        data = parseFormData(postData);
+      } else if (e.parameters) {
+        data = {};
+        Object.keys(e.parameters).forEach(function(key) {
+          data[key] = e.parameters[key][0];
+        });
+      }
     }
   } catch (err) {
-    return jsonResponse({ success: false, message: 'Invalid request data' });
+    return jsonResponse({ success: false, message: 'Invalid request: ' + err.toString() });
+  }
+
+  if (!data.action && e.parameters && e.parameters.action) {
+    data.action = e.parameters.action[0];
   }
 
   if (!data.action) {
@@ -114,11 +126,23 @@ function doPost(e) {
       case 'initSheets':
         return jsonResponse(initSheets());
       default:
-        return jsonResponse({ success: false, message: 'Action tidak valid' });
+        return jsonResponse({ success: false, message: 'Action tidak valid: ' + data.action });
     }
   } catch (error) {
     return jsonResponse({ success: false, message: error.toString() });
   }
+}
+
+function parseFormData(formString) {
+  var result = {};
+  var pairs = formString.split('&');
+  for (var i = 0; i < pairs.length; i++) {
+    var pair = pairs[i].split('=');
+    var key = decodeURIComponent(pair[0]);
+    var value = pair.length > 1 ? decodeURIComponent(pair[1]) : '';
+    result[key] = value;
+  }
+  return result;
 }
 
 // ============ AUTH FUNCTIONS ============

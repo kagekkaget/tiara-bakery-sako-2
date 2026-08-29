@@ -8,6 +8,10 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const checkAuth = useCallback(async () => {
+    if (!import.meta.env.VITE_APPS_SCRIPT_URL) {
+      setLoading(false);
+      return;
+    }
     try {
       const result = await adminApi.checkSession();
       if (result.success && result.data) {

@@ -35,7 +35,7 @@ function clearSession() {
 
 async function apiCall(action, method = 'GET', body = null, params = {}) {
   if (!APPS_SCRIPT_URL) {
-    throw new Error('VITE_APPS_SCRIPT_URL belum diatur di .env');
+    return { success: false, message: 'VITE_APPS_SCRIPT_URL belum diatur di .env' };
   }
 
   const queryParams = new URLSearchParams({ action, ...params });
@@ -58,41 +58,36 @@ async function apiCall(action, method = 'GET', body = null, params = {}) {
     if (!session) {
       return { success: false, message: 'Session expired. Silakan login kembali.' };
     }
-    const payload = {
-      ...body,
-      sessionToken: session.sessionToken
-    };
 
-    console.log('POST payload:', { action, payload });
+    const payload = new URLSearchParams();
+    payload.append('action', action);
+    payload.append('sessionToken', session.sessionToken);
+    Object.entries(body || {}).forEach(([key, value]) => {
+      payload.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+    });
 
     let response;
     try {
-      const formData = new URLSearchParams();
-      formData.append('action', action);
-      Object.entries(payload).forEach(([key, value]) => {
-        formData.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
-      });
-
       response = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
-        body: formData
+        body: payload
       });
     } catch (fetchError) {
       console.error('Fetch failed:', fetchError);
       return { success: false, message: 'Tidak dapat terhubung ke server. Pastikan:\n1. URL Apps Script benar\n2. Deployment di-set "Anyone"\n3. Koneksi internet stabil' };
     }
+
     const text = await response.text();
-    console.log('POST response status:', response.status);
-    console.log('POST response text:', text.substring(0, 200));
+    console.log('POST response status:', response.status, 'text:', text.substring(0, 200));
     try {
       return JSON.parse(text);
     } catch (e) {
       console.error('Response not JSON:', text.substring(0, 500));
-      return { success: false, message: 'Response tidak valid. Cek console untuk detail.' };
+      return { success: false, message: 'Response tidak valid. Status: ' + response.status };
     }
   } catch (error) {
     console.error('API Call Error:', error);
-    throw error;
+    return { success: false, message: error.toString() };
   }
 }
 
