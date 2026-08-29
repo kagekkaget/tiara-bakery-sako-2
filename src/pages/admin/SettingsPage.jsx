@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import * as adminApi from '../../services/adminApi';
+import { useSettings } from '../../store/SettingsContext';
 
 export default function SettingsPage() {
+  const { refreshSettings } = useSettings();
   const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -45,6 +47,7 @@ export default function SettingsPage() {
       const result = await adminApi.updateSetting(key, settings[key]);
       console.log('Save result:', result);
       if (result.success) {
+        refreshSettings();
         setMessage({ type: 'success', text: `${labelForKey(key)} berhasil disimpan` });
         setTimeout(() => setMessage({ type: '', text: '' }), 3000);
       } else {
@@ -67,6 +70,7 @@ export default function SettingsPage() {
       for (const key of keys) {
         await adminApi.updateSetting(key, settings[key]);
       }
+      refreshSettings();
       setMessage({ type: 'success', text: 'Semua pengaturan berhasil disimpan' });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (err) {

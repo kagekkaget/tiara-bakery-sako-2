@@ -1,15 +1,17 @@
-import { appConfig } from "../config/appConfig";
 import ProductImage from "../components/ProductImage";
+import { useSettings } from "../store/SettingsContext";
 
 export default function AboutPage() {
+  const { settings } = useSettings();
+
   return (
     <main className="container section">
       <div className="about-grid">
         <div className="about-text">
           <div className="eyebrow">Tentang Kami</div>
-          <h2>Tentang {appConfig.storeName}</h2>
+          <h2>Tentang {settings.storeName}</h2>
           <p>
-            {appConfig.storeName} adalah toko roti dan jajanan pasar lokal yang berlokasi
+            {settings.storeName} adalah toko roti dan jajanan pasar lokal yang berlokasi
             di Kecamatan Sako, Palembang. Kami menyajikan beragam kue basah, jajanan pasar,
             tart, snack box, dan roti yang dibuat dengan resep turun-temurun dan bahan pilihan.
           </p>
@@ -28,7 +30,7 @@ export default function AboutPage() {
           </div>
         </div>
         <div className="about-image">
-          <ProductImage src={appConfig.heroImage} alt={appConfig.storeName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <ProductImage src={settings.heroImage} alt={settings.storeName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         </div>
       </div>
     </main>

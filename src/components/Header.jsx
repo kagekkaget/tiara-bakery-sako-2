@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { appConfig } from "../config/appConfig";
 import { useCart } from "../store/CartContext";
+import { useSettings } from "../store/SettingsContext";
 
 export default function Header() {
   const { count, openCart } = useCart();
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -12,16 +13,16 @@ export default function Header() {
     <header className="header">
       <div className="header-inner container">
         <Link to="/" className="brand">
-          <img src={appConfig.logo} alt={appConfig.logoAlt} />
+          <img src={settings.logo} alt={settings.logoAlt || settings.storeShortName} />
           <span>
-            <div className="brand-name">{appConfig.storeShortName}</div>
-            <div className="brand-sub">{appConfig.tagline}</div>
+            <div className="brand-name">{settings.storeShortName}</div>
+            <div className="brand-sub">{settings.tagline}</div>
           </span>
         </Link>
 
         <nav className="header-links">
           <div className="nav-links" style={{ display: menuOpen ? "flex" : undefined, flexDirection: "column", position: menuOpen ? "absolute" : undefined, top: 64, right: 16, background: "#fff", padding: 12, borderRadius: 12, boxShadow: "0 10px 30px rgba(0,0,0,.15)", zIndex: 50 }}>
-            {appConfig.navLinks.map((l) => (
+            {settings.navLinks && settings.navLinks.map((l) => (
               <NavLink key={l.to} to={l.to} end={l.to === "/"} className={({ isActive }) => "nav-link" + (isActive ? " active" : "")} onClick={() => setMenuOpen(false)}>
                 {l.label}
               </NavLink>

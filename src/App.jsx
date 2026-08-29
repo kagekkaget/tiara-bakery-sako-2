@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
 import { CartProvider } from "./store/CartContext";
 import { AuthProvider } from "./store/AuthContext";
+import { SettingsProvider } from "./store/SettingsContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -51,77 +52,79 @@ function StoreLayout({ children }) {
 export default function App() {
   return (
     <CartProvider>
-      <AuthProvider>
-        <HashRouter>
-          <ScrollToTop />
-          <Suspense fallback={<PageLoading />}>
-            <Routes>
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute>
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<AdminDashboard />} />
-                <Route path="products" element={<AdminProducts />} />
-                <Route path="orders" element={<AdminOrders />} />
-                <Route path="settings" element={<AdminSettings />} />
-              </Route>
-              <Route
-                path="/"
-                element={
-                  <StoreLayout>
-                    <HomePage />
-                  </StoreLayout>
-                }
-              />
-              <Route
-                path="/produk"
-                element={
-                  <StoreLayout>
-                    <ProductsPage />
-                  </StoreLayout>
-                }
-              />
-              <Route
-                path="/tentang"
-                element={
-                  <StoreLayout>
-                    <AboutPage />
-                  </StoreLayout>
-                }
-              />
-              <Route
-                path="/kontak"
-                element={
-                  <StoreLayout>
-                    <ContactPage />
-                  </StoreLayout>
-                }
-              />
-              <Route
-                path="/checkout"
-                element={
-                  <StoreLayout>
-                    <CheckoutPage />
-                  </StoreLayout>
-                }
-              />
-              <Route
-                path="*"
-                element={
-                  <StoreLayout>
-                    <HomePage />
-                  </StoreLayout>
-                }
-              />
-            </Routes>
-          </Suspense>
-        </HashRouter>
-      </AuthProvider>
+      <SettingsProvider>
+        <AuthProvider>
+          <HashRouter>
+            <ScrollToTop />
+            <Suspense fallback={<PageLoading />}>
+              <Routes>
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <AdminLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
+                <Route
+                  path="/"
+                  element={
+                    <StoreLayout>
+                      <HomePage />
+                    </StoreLayout>
+                  }
+                />
+                <Route
+                  path="/produk"
+                  element={
+                    <StoreLayout>
+                      <ProductsPage />
+                    </StoreLayout>
+                  }
+                />
+                <Route
+                  path="/tentang"
+                  element={
+                    <StoreLayout>
+                      <AboutPage />
+                    </StoreLayout>
+                  }
+                />
+                <Route
+                  path="/kontak"
+                  element={
+                    <StoreLayout>
+                      <ContactPage />
+                    </StoreLayout>
+                  }
+                />
+                <Route
+                  path="/checkout"
+                  element={
+                    <StoreLayout>
+                      <CheckoutPage />
+                    </StoreLayout>
+                  }
+                />
+                <Route
+                  path="*"
+                  element={
+                    <StoreLayout>
+                      <HomePage />
+                    </StoreLayout>
+                  }
+                />
+              </Routes>
+            </Suspense>
+          </HashRouter>
+        </AuthProvider>
+      </SettingsProvider>
     </CartProvider>
   );
 }

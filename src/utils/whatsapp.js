@@ -2,8 +2,19 @@
 // UTILITAS WHATSAPP - membuat link wa.me yang aman & ter-encode
 // ==========================================================================
 
-import { appConfig } from "../config/appConfig";
 import { buildWhatsAppMessage } from "./sanitize";
+
+const defaultConfig = {
+  whatsapp: '6281234567890',
+  storeName: 'TIARA BAKERY SAKO PALEMBANG',
+  copyright: 'Copyright MZF - 2026'
+};
+
+let appConfig = { ...defaultConfig };
+
+export function setWhatsAppConfig(config) {
+  appConfig = { ...defaultConfig, ...config };
+}
 
 // Gabungkan nomor hp + pesan menjadi URL wa.me yang aman.
 function waLink(phone, message) {

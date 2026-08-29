@@ -1,7 +1,9 @@
-import { appConfig } from "../config/appConfig";
 import ProductImage from "./ProductImage";
+import { useSettings } from "../store/SettingsContext";
 
 export default function Hero({ onExplore }) {
+  const { settings } = useSettings();
+
   return (
     <section className="hero">
       <div className="hero-bg" />
@@ -9,10 +11,10 @@ export default function Hero({ onExplore }) {
         <div>
           <div className="eyebrow">Rasa Rumahan, Kualitas Terbaik</div>
           <h1>
-            {appConfig.storeName.split(" ").slice(0, 2).join(" ")}<br />
-            <span>{appConfig.tagline}</span>
+            {settings.storeName.split(" ").slice(0, 2).join(" ")}<br />
+            <span>{settings.tagline}</span>
           </h1>
-          <p className="lead">{appConfig.description}</p>
+          <p className="lead">{settings.description}</p>
           <div className="hero-actions">
             <button className="btn btn-primary" onClick={onExplore}>Lihat Menu 🍰</button>
             <a className="btn btn-dark" href="#kategori">Jelajahi Kategori</a>
@@ -25,7 +27,7 @@ export default function Hero({ onExplore }) {
         </div>
         <div className="hero-media">
           <div className="hero-img-wrap">
-            <ProductImage src={appConfig.heroImage} alt="Beragam kue Tiara Bakery" />
+            <ProductImage src={settings.heroImage} alt="Beragam kue Tiara Bakery" />
           </div>
         </div>
       </div>

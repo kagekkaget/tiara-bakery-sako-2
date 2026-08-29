@@ -1,15 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "../store/CartContext";
-import { appConfig } from "../config/appConfig";
-import { buildOrderMessage, formatRupiah } from "../utils/whatsapp";
+import { useSettings } from "../store/SettingsContext";
+import { buildOrderMessage, formatRupiah, setWhatsAppConfig } from "../utils/whatsapp";
 import { sanitizeString, sanitizePhone } from "../utils/sanitize";
 
 export default function CheckoutPage() {
   const { items, subtotal } = useCart();
+  const { settings } = useSettings();
   const [form, setForm] = useState({ nama: "", hp: "", alamat: "", catatan: "" });
   const [ongkir, setOngkir] = useState(0);
   const [error, setError] = useState("");
   const [opened, setOpened] = useState(false);
+
+  useEffect(() => {
+    setWhatsAppConfig(settings);
+  }, [settings]);
 
   const setField = (key, val) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -33,7 +38,7 @@ export default function CheckoutPage() {
     };
 
     const message = buildOrderMessage(items, subtotal, shipping);
-    const url = `https://wa.me/${sanitizePhone(appConfig.whatsapp)}?text=${encodeURIComponent(message)}`;
+    const url = `https://wa.me/${sanitizePhone(settings.whatsapp)}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank", "noopener,noreferrer");
     setOpened(true);
   };

@@ -1,7 +1,8 @@
-import { appConfig } from "../config/appConfig";
 import { openWa } from "../utils/whatsapp";
+import { useSettings } from "../store/SettingsContext";
 
 export default function ContactPage() {
+  const { settings } = useSettings();
   const wa = openWa("Halo Tiara Bakery, saya ingin bertanya tentang produk Anda.");
 
   return (
@@ -18,28 +19,28 @@ export default function ContactPage() {
             <div className="info-icon">📍</div>
             <div>
               <h4>Alamat</h4>
-              <p>{appConfig.address}</p>
+              <p>{settings.address}</p>
             </div>
           </div>
           <div className="info-card">
             <div className="info-icon">📞</div>
             <div>
               <h4>Telepon / WhatsApp</h4>
-              <p>{appConfig.phoneDisplay}</p>
+              <p>{settings.phoneDisplay}</p>
             </div>
           </div>
           <div className="info-card">
             <div className="info-icon">✉️</div>
             <div>
               <h4>Email</h4>
-              <p>{appConfig.email}</p>
+              <p>{settings.email}</p>
             </div>
           </div>
           <div className="info-card">
             <div className="info-icon">🕐</div>
             <div>
               <h4>Jam Operasional</h4>
-              {appConfig.openingHours.map((o, i) => (
+              {settings.openingHours && settings.openingHours.map((o, i) => (
                 <p key={i}>{o.day}: {o.hours}</p>
               ))}
             </div>
@@ -54,14 +55,14 @@ export default function ContactPage() {
         <div>
           <iframe
             className="map-frame"
-            src={appConfig.googleMapsEmbed}
+            src={settings.googleMapsEmbed}
             title="Lokasi Tiara Bakery"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
             allowFullScreen
           />
           <div className="mt-3 text-center">
-            <a className="btn btn-outline btn-sm" href={appConfig.googleMapsLink} target="_blank" rel="noreferrer noopener">
+            <a className="btn btn-outline btn-sm" href={settings.googleMapsLink} target="_blank" rel="noreferrer noopener">
               Buka di Google Maps ↗
             </a>
           </div>
