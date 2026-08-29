@@ -161,6 +161,10 @@ export async function changePassword(currentPassword, newPassword) {
   return apiCall('changePassword', 'POST', { currentPassword, newPassword });
 }
 
+export async function addUser(userData) {
+  return apiCall('addUser', 'POST', userData);
+}
+
 export async function initSheets() {
   return apiCall('initSheets', 'POST', {});
 }

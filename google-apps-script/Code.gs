@@ -88,6 +88,8 @@ function doPost(e) {
         return jsonResponse(updateSetting(data));
       case 'changePassword':
         return jsonResponse(changePassword(data));
+      case 'addUser':
+        return jsonResponse(addUser(data));
       case 'initSheets':
         return jsonResponse(initSheets());
       default:
@@ -288,6 +290,42 @@ function changePassword(data) {
   }
 
   return { success: false, message: 'User tidak ditemukan' };
+}
+
+function addUser(data) {
+  const { username, password, nama, sessionToken } = data;
+  const session = verifySession(sessionToken);
+
+  if (!session) {
+    return { success: false, message: 'Session tidak valid' };
+  }
+
+  if (!username || !password || !nama) {
+    return { success: false, message: 'Username, password, dan nama wajib diisi' };
+  }
+
+  if (password.length < 6) {
+    return { success: false, message: 'Password minimal 6 karakter' };
+  }
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = getOrCreateSheet(ss, SHEET_USERS, [['username', 'password_hash', 'nama', 'created_at']]);
+  const sheetData = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < sheetData.length; i++) {
+    if (sheetData[i][0].toString().toLowerCase() === username.toLowerCase()) {
+      return { success: false, message: 'Username sudah terdaftar' };
+    }
+  }
+
+  sheet.appendRow([
+    username,
+    hashPassword(password),
+    nama,
+    new Date().toISOString()
+  ]);
+
+  return { success: true, message: `User ${username} berhasil ditambahkan` };
 }
 
 // ============ PRODUCT FUNCTIONS ============

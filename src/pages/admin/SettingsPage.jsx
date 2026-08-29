@@ -7,6 +7,13 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [userForm, setUserForm] = useState({ username: '', password: '', nama: '' });
+  const [passwordError, setPasswordError] = useState('');
+  const [userError, setUserError] = useState('');
+
   useEffect(() => {
     loadSettings();
   }, []);
@@ -36,7 +43,7 @@ export default function SettingsPage() {
     try {
       const result = await adminApi.updateSetting(key, settings[key]);
       if (result.success) {
-        setMessage({ type: 'success', text: 'Pengaturan berhasil disimpan' });
+        setMessage({ type: 'success', text: `${labelForKey(key)} berhasil disimpan` });
         setTimeout(() => setMessage({ type: '', text: '' }), 3000);
       } else {
         setMessage({ type: 'error', text: result.message || 'Gagal menyimpan' });
@@ -64,6 +71,83 @@ export default function SettingsPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPasswordError('');
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError('Password baru tidak cocok');
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordError('Password minimal 6 karakter');
+      return;
+    }
+
+    try {
+      const result = await adminApi.changePassword(passwordForm.currentPassword, passwordForm.newPassword);
+      if (result.success) {
+        setMessage({ type: 'success', text: 'Password berhasil diubah' });
+        setShowPasswordModal(false);
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      } else {
+        setPasswordError(result.message || 'Gagal mengubah password');
+      }
+    } catch (err) {
+      setPasswordError('Gagal terhubung ke server');
+    }
+  };
+
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    setUserError('');
+
+    if (!userForm.username || !userForm.password || !userForm.nama) {
+      setUserError('Semua field wajib diisi');
+      return;
+    }
+
+    if (userForm.password.length < 6) {
+      setUserError('Password minimal 6 karakter');
+      return;
+    }
+
+    try {
+      const result = await adminApi.addUser(userForm);
+      if (result.success) {
+        setMessage({ type: 'success', text: `User ${userForm.username} berhasil ditambahkan` });
+        setShowUserModal(false);
+        setUserForm({ username: '', password: '', nama: '' });
+        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      } else {
+        setUserError(result.message || 'Gagal menambahkan user');
+      }
+    } catch (err) {
+      setUserError('Gagal terhubung ke server');
+    }
+  };
+
+  const labelForKey = (key) => {
+    const labels = {
+      storeName: 'Nama Toko',
+      storeShortName: 'Nama Pendek',
+      tagline: 'Tagline',
+      description: 'Deskripsi',
+      phoneDisplay: 'No. Telepon',
+      whatsapp: 'WhatsApp',
+      email: 'Email',
+      address: 'Alamat',
+      logo: 'URL Logo',
+      heroImage: 'URL Gambar Hero',
+      googleMapsEmbed: 'Google Maps Embed',
+      googleMapsLink: 'Google Maps Link',
+      copyright: 'Copyright'
+    };
+    return labels[key] || key;
   };
 
   if (loading) {
@@ -114,14 +198,22 @@ export default function SettingsPage() {
   return (
     <div className="settings-page">
       <div className="page-header">
-        <h1>Pengaturan Toko</h1>
-        <button
-          onClick={handleSaveAll}
-          className="btn-primary"
-          disabled={saving}
-        >
-          {saving ? 'Menyimpan...' : '💾 Simpan Semua'}
-        </button>
+        <h1>Pengaturan</h1>
+        <div className="header-actions">
+          <button onClick={() => setShowPasswordModal(true)} className="btn-secondary">
+            🔑 Ubah Password
+          </button>
+          <button onClick={() => setShowUserModal(true)} className="btn-secondary">
+            + Tambah Admin
+          </button>
+          <button
+            onClick={handleSaveAll}
+            className="btn-primary"
+            disabled={saving}
+          >
+            {saving ? 'Menyimpan...' : '💾 Simpan Semua'}
+          </button>
+        </div>
       </div>
 
       {message.text && (
@@ -165,6 +257,107 @@ export default function SettingsPage() {
           </div>
         ))}
       </div>
+
+      {showPasswordModal && (
+        <div className="modal-overlay" onClick={() => setShowPasswordModal(false)}>
+          <div className="modal-content modal-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Ubah Password</h2>
+              <button onClick={() => setShowPasswordModal(false)} className="btn-close">✕</button>
+            </div>
+            <form onSubmit={handleChangePassword} className="password-form">
+              {passwordError && <div className="error-message">{passwordError}</div>}
+              <div className="form-group">
+                <label>Password Saat Ini</label>
+                <input
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm(p => ({ ...p, currentPassword: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Password Baru</label>
+                <input
+                  type="password"
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm(p => ({ ...p, newPassword: e.target.value }))}
+                  required
+                  minLength={6}
+                />
+              </div>
+              <div className="form-group">
+                <label>Konfirmasi Password Baru</label>
+                <input
+                  type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm(p => ({ ...p, confirmPassword: e.target.value }))}
+                  required
+                  minLength={6}
+                />
+              </div>
+              <div className="form-actions">
+                <button type="button" onClick={() => setShowPasswordModal(false)} className="btn-secondary">
+                  Batal
+                </button>
+                <button type="submit" className="btn-primary">
+                  Ubah Password
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showUserModal && (
+        <div className="modal-overlay" onClick={() => setShowUserModal(false)}>
+          <div className="modal-content modal-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Tambah Admin Baru</h2>
+              <button onClick={() => setShowUserModal(false)} className="btn-close">✕</button>
+            </div>
+            <form onSubmit={handleAddUser} className="password-form">
+              {userError && <div className="error-message">{userError}</div>}
+              <div className="form-group">
+                <label>Nama Lengkap</label>
+                <input
+                  type="text"
+                  value={userForm.nama}
+                  onChange={(e) => setUserForm(p => ({ ...p, nama: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Username</label>
+                <input
+                  type="text"
+                  value={userForm.username}
+                  onChange={(e) => setUserForm(p => ({ ...p, username: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Password</label>
+                <input
+                  type="password"
+                  value={userForm.password}
+                  onChange={(e) => setUserForm(p => ({ ...p, password: e.target.value }))}
+                  required
+                  minLength={6}
+                />
+              </div>
+              <div className="form-actions">
+                <button type="button" onClick={() => setShowUserModal(false)} className="btn-secondary">
+                  Batal
+                </button>
+                <button type="submit" className="btn-primary">
+                  Tambah Admin
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -981,6 +981,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   animation: popIn 0.25s ease;
 }
 
+.modal-sm {
+  max-width: 400px;
+}
+
 .modal-header {
   display: flex;
   align-items: center;
@@ -1075,6 +1079,12 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   border-top: 1px solid var(--cream-soft);
 }
 
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .btn-secondary {
   padding: 10px 20px;
   background: var(--cream-soft);
@@ -1086,6 +1096,42 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 .btn-secondary:hover {
   background: var(--cream);
+}
+
+.password-form {
+  padding: 24px;
+}
+
+.password-form .form-group {
+  margin-bottom: 16px;
+}
+
+.password-form label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.password-form input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--cream-soft);
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.password-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.password-form .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .btn-primary {
