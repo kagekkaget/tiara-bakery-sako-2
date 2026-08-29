@@ -61,11 +61,32 @@ function doGet(e) {
 }
 
 function doPost(e) {
-  let data;
+  let data = {};
+
   try {
-    data = JSON.parse(e.postData.contents);
+    if (e.postData && e.postData.contents) {
+      try {
+        data = JSON.parse(e.postData.contents);
+      } catch (jsonErr) {
+        if (e.parameters) {
+          data = {};
+          Object.keys(e.parameters).forEach(function(key) {
+            data[key] = e.parameters[key][0];
+          });
+        }
+      }
+    } else if (e.parameters) {
+      data = {};
+      Object.keys(e.parameters).forEach(function(key) {
+        data[key] = e.parameters[key][0];
+      });
+    }
   } catch (err) {
-    return jsonResponse({ success: false, message: 'Invalid JSON body' });
+    return jsonResponse({ success: false, message: 'Invalid request data' });
+  }
+
+  if (!data.action) {
+    return jsonResponse({ success: false, message: 'Action tidak ditemukan' });
   }
 
   if (!verifySession(data.sessionToken)) {

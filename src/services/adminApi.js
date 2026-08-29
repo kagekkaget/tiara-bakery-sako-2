@@ -65,18 +65,30 @@ async function apiCall(action, method = 'GET', body = null, params = {}) {
 
     console.log('POST payload:', { action, payload });
 
-    const response = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      redirect: 'follow'
-    });
+    let response;
+    try {
+      const formData = new URLSearchParams();
+      formData.append('action', action);
+      Object.entries(payload).forEach(([key, value]) => {
+        formData.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+      });
+
+      response = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: formData
+      });
+    } catch (fetchError) {
+      console.error('Fetch failed:', fetchError);
+      return { success: false, message: 'Tidak dapat terhubung ke server. Pastikan:\n1. URL Apps Script benar\n2. Deployment di-set "Anyone"\n3. Koneksi internet stabil' };
+    }
     const text = await response.text();
+    console.log('POST response status:', response.status);
+    console.log('POST response text:', text.substring(0, 200));
     try {
       return JSON.parse(text);
     } catch (e) {
       console.error('Response not JSON:', text.substring(0, 500));
-      return { success: false, message: 'Response tidak valid dari server' };
+      return { success: false, message: 'Response tidak valid. Cek console untuk detail.' };
     }
   } catch (error) {
     console.error('API Call Error:', error);
