@@ -104,10 +104,12 @@ const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
 
 function checkRateLimit(username) {
-  const cache = ScriptCache.get('login_' + username.toLowerCase());
+  const cache = CacheService.getScriptCache();
+  const key = 'login_' + username.toLowerCase();
+  const cached = cache.get(key);
 
-  if (cache) {
-    const attempts = parseInt(cache, 10);
+  if (cached) {
+    const attempts = parseInt(cached, 10);
     if (attempts >= MAX_LOGIN_ATTEMPTS) {
       return { locked: true, message: 'Terlalu banyak percobaan. Coba lagi dalam ' + LOCKOUT_MINUTES + ' menit.' };
     }
@@ -117,14 +119,16 @@ function checkRateLimit(username) {
 }
 
 function recordFailedAttempt(username) {
+  const cache = CacheService.getScriptCache();
   const key = 'login_' + username.toLowerCase();
-  const cache = ScriptCache.get(key);
-  const attempts = cache ? parseInt(cache, 10) + 1 : 1;
-  ScriptCache.put(key, attempts.toString(), LOCKOUT_MINUTES * 60);
+  const cached = cache.get(key);
+  const attempts = cached ? parseInt(cached, 10) + 1 : 1;
+  cache.put(key, attempts.toString(), LOCKOUT_MINUTES * 60);
 }
 
 function clearFailedAttempts(username) {
-  ScriptCache.remove('login_' + username.toLowerCase());
+  const cache = CacheService.getScriptCache();
+  cache.remove('login_' + username.toLowerCase());
 }
 
 function login(params) {
