@@ -100,11 +100,43 @@ function doPost(e) {
 
 // ============ AUTH FUNCTIONS ============
 
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_MINUTES = 15;
+
+function checkRateLimit(username) {
+  const cache = ScriptCache.get('login_' + username.toLowerCase());
+
+  if (cache) {
+    const attempts = parseInt(cache, 10);
+    if (attempts >= MAX_LOGIN_ATTEMPTS) {
+      return { locked: true, message: 'Terlalu banyak percobaan. Coba lagi dalam ' + LOCKOUT_MINUTES + ' menit.' };
+    }
+  }
+
+  return { locked: false };
+}
+
+function recordFailedAttempt(username) {
+  const key = 'login_' + username.toLowerCase();
+  const cache = ScriptCache.get(key);
+  const attempts = cache ? parseInt(cache, 10) + 1 : 1;
+  ScriptCache.put(key, attempts.toString(), LOCKOUT_MINUTES * 60);
+}
+
+function clearFailedAttempts(username) {
+  ScriptCache.remove('login_' + username.toLowerCase());
+}
+
 function login(params) {
   const { username, password } = params;
 
   if (!username || !password) {
     return { success: false, message: 'Username dan password wajib diisi' };
+  }
+
+  const rateLimit = checkRateLimit(username);
+  if (rateLimit.locked) {
+    return { success: false, message: rateLimit.message };
   }
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -125,6 +157,7 @@ function login(params) {
       const storedHash = data[i][passwordIdx].toString();
 
       if (verifyPassword(password, storedHash)) {
+        clearFailedAttempts(username);
         const sessionToken = createSession(username);
         const nama = namaIdx !== -1 ? data[i][namaIdx] : username;
 
@@ -138,11 +171,13 @@ function login(params) {
           }
         };
       } else {
+        recordFailedAttempt(username);
         return { success: false, message: 'Password salah' };
       }
     }
   }
 
+  recordFailedAttempt(username);
   return { success: false, message: 'Username tidak ditemukan' };
 }
 

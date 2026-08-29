@@ -21,6 +21,7 @@ export default function Footer() {
             {appConfig.navLinks.map((l) => (
               <li key={l.to}><Link to={l.to}>{l.label}</Link></li>
             ))}
+            <li><Link to="/admin/login">🔐 Admin</Link></li>
           </ul>
         </div>
 
