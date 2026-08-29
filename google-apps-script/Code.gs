@@ -138,8 +138,8 @@ function parseFormData(formString) {
   var pairs = formString.split('&');
   for (var i = 0; i < pairs.length; i++) {
     var pair = pairs[i].split('=');
-    var key = decodeURIComponent(pair[0]);
-    var value = pair.length > 1 ? decodeURIComponent(pair[1]) : '';
+    var key = decodeURIComponent(pair[0].replace(/\+/g, ' '));
+    var value = pair.length > 1 ? decodeURIComponent(pair[1].replace(/\+/g, ' ')) : '';
     result[key] = value;
   }
   return result;
@@ -833,6 +833,38 @@ function initSheets() {
     message: 'Semua sheet berhasil diinisialisasi. Default login: admin / admin123',
     sheets: ['Users', 'Products', 'Orders', 'Settings', 'Sessions', 'Categories']
   };
+}
+
+function fixPlusSigns() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  fixSheetPlusSigns(ss, SHEET_SETTINGS, ['value']);
+  fixSheetPlusSigns(ss, SHEET_USERS, ['username', 'nama']);
+  fixSheetPlusSigns(ss, SHEET_PRODUCTS, ['nama', 'deskripsi', 'varian']);
+  fixSheetPlusSigns(ss, SHEET_ORDERS, ['nama_pembeli', 'alamat', 'catatan']);
+
+  return { success: true, message: 'Semua tanda + berhasil diperbaiki menjadi spasi' };
+}
+
+function fixSheetPlusSigns(ss, sheetName, columns) {
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) return;
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0].map(h => h.toString().toLowerCase());
+
+  columns.forEach(function(colName) {
+    const colIdx = headers.indexOf(colName);
+    if (colIdx === -1) return;
+
+    for (var i = 1; i < data.length; i++) {
+      var cellValue = data[i][colIdx];
+      if (cellValue && typeof cellValue === 'string' && cellValue.indexOf('+') !== -1) {
+        var fixed = cellValue.replace(/\+/g, ' ');
+        sheet.getRange(i + 1, colIdx + 1).setValue(fixed);
+      }
+    }
+  });
 }
 
 // ============ HELPERS ============
