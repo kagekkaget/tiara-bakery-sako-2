@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <defs>
+    <radialGradient id="bg" cx="40%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#fdf0dc"/>
+      <stop offset="100%" stop-color="#f7ecdc"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg)"/>
+  <circle cx="300" cy="300" r="230" fill="#ffffff" opacity="0.6"/>
+  <circle cx="300" cy="300" r="220" fill="#6d4c2f"/>
+  <circle cx="300" cy="300" r="150" fill="#d97706"/>
+  <path d="M300 160c52 0 86 34 86 86v120c0 24-20 44-44 44h-84c-24 0-44-20-44-44V246c0-52 34-86 86-86z" fill="#fdf6ec"/>
+  <circle cx="248" cy="250" r="13" fill="#6d4c2f"/>
+  <circle cx="318" cy="250" r="13" fill="#6d4c2f"/>
+  <path d="M258 300c20 20 40 20 60 0 20-20 38-20 58 0" fill="none" stroke="#6d4c2f" stroke-width="9" stroke-linecap="round"/>
+  <text x="300" y="470" font-family="Arial, sans-serif" font-size="54" font-weight="bold" fill="#fff" text-anchor="middle">Tiara</text>
+  <text x="300" y="515" font-family="Arial, sans-serif" font-size="26" letter-spacing="6" fill="#f3e9dc" text-anchor="middle">BAKERY</text>
+</svg>
